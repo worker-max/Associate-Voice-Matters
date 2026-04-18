@@ -10,13 +10,21 @@ import {
 import { WingBadge } from "@/components/brand/WingBadge";
 import { Mark } from "@/components/brand/Mark";
 
-const industries = [
-  { name: "Healthcare", status: "Live — Launch Vertical" },
-  { name: "Hospitality", status: "Coming Soon" },
-  { name: "Retail", status: "Coming Soon" },
-  { name: "Home Services", status: "Coming Soon" },
-  { name: "Education", status: "Coming Soon" },
-  { name: "All others", status: "Modular" },
+type Vertical = {
+  name: string;
+  status: string;
+  href?: string; // present = live; absent = coming soon (greyed)
+};
+
+const verticals: Vertical[] = [
+  { name: "Home Health", status: "Live · Pulse survey open", href: "/home-health" },
+  { name: "Home Hospice", status: "Live · Pulse survey open", href: "/home-hospice" },
+  { name: "Acute Care Nursing", status: "Coming soon" },
+  { name: "Allied Health", status: "Coming soon" },
+  { name: "Hospitality", status: "Coming soon" },
+  { name: "Retail", status: "Coming soon" },
+  { name: "Home Services", status: "Coming soon" },
+  { name: "Education", status: "Coming soon" },
 ];
 
 export default function HomePage() {
@@ -175,28 +183,54 @@ export default function HomePage() {
         <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
           <div>
             <span className="tag">Universal by design</span>
-            <h2 className="mt-3">Healthcare first. Every industry next.</h2>
+            <h2 className="mt-3">Home Health first. Home Hospice next. Every vertical after.</h2>
           </div>
           <p className="max-w-md text-slate/70">
-            Healthcare is our launch vertical because of the founding team's
-            domain expertise. Every other industry follows via the plug-in
+            We're launching on the two verticals where our founding team's
+            experience runs deepest. Every other industry follows via a plug-in
             module registry — no core rewrites.
           </p>
         </div>
         <div className="mt-10 grid gap-3 sm:grid-cols-2 md:grid-cols-3">
-          {industries.map((i) => (
-            <div
-              key={i.name}
-              className="rounded-bubble border border-ivory-card bg-ivory p-5"
-            >
-              <div className="text-xs uppercase tracking-[0.2em] text-sage">
-                {i.status}
+          {verticals.map((v) =>
+            v.href ? (
+              <Link
+                key={v.name}
+                href={v.href}
+                className="group rounded-bubble border border-sage/30 bg-ivory p-5 shadow-warm transition hover:-translate-y-0.5 hover:shadow-lift"
+              >
+                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.2em] text-sage">
+                  <span className="relative inline-flex">
+                    <span className="h-2 w-2 rounded-full bg-sage" />
+                    <span className="absolute inset-0 animate-ping rounded-full bg-sage/60" />
+                  </span>
+                  {v.status}
+                </div>
+                <div className="mt-2 font-display italic text-xl font-bold text-slate">
+                  {v.name}
+                </div>
+                <div className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-sage group-hover:gap-2 transition-all">
+                  Open vertical <ArrowRight className="h-3.5 w-3.5" />
+                </div>
+              </Link>
+            ) : (
+              <div
+                key={v.name}
+                className="rounded-bubble border border-ivory-card bg-ivory/60 p-5 opacity-60"
+                aria-label={`${v.name} — coming soon`}
+              >
+                <div className="text-xs uppercase tracking-[0.2em] text-slate/50">
+                  {v.status}
+                </div>
+                <div className="mt-2 font-display italic text-xl font-bold text-slate/70">
+                  {v.name}
+                </div>
+                <div className="mt-3 text-xs text-slate/50">
+                  Plug-in module · TBD
+                </div>
               </div>
-              <div className="mt-2 font-display italic text-xl font-bold text-slate">
-                {i.name}
-              </div>
-            </div>
-          ))}
+            )
+          )}
         </div>
       </section>
 

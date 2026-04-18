@@ -2,11 +2,12 @@ import Link from "next/link";
 import { Wordmark } from "@/components/brand/Wordmark";
 
 const links = [
+  { href: "/home-health", label: "Home Health", live: true },
+  { href: "/home-hospice", label: "Home Hospice", live: true },
   { href: "/channel", label: "Channel" },
   { href: "/envoy", label: "Envoy" },
   { href: "/how-it-works", label: "How it works" },
   { href: "/for-employers", label: "For employers" },
-  { href: "/about", label: "About" },
 ];
 
 export function Navbar() {
@@ -16,13 +17,19 @@ export function Navbar() {
         <Link href="/" aria-label="AssociateVoiceMatters home">
           <Wordmark />
         </Link>
-        <div className="hidden items-center gap-7 md:flex">
+        <div className="hidden items-center gap-6 md:flex">
           {links.map((l) => (
             <Link
               key={l.href}
               href={l.href}
-              className="text-sm font-medium text-slate/80 transition hover:text-sage"
+              className="flex items-center gap-1.5 text-sm font-medium text-slate/80 transition hover:text-sage"
             >
+              {l.live ? (
+                <span className="relative inline-flex h-1.5 w-1.5">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-sage/60" />
+                  <span className="relative h-1.5 w-1.5 rounded-full bg-sage" />
+                </span>
+              ) : null}
               {l.label}
             </Link>
           ))}

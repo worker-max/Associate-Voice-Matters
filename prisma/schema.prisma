@@ -386,3 +386,28 @@ model Recruiter {
 
   @@map("recruiters")
 }
+
+// ---------------------------------------------------------------------------
+//  SurveyResponse — vertical-targeted pulse surveys on landing pages.
+//
+//  Questions live in /src/content/surveys/* (editable code, no migration
+//  needed). This table stores only the selections + a ballot hash for
+//  lightweight dedup (one response per ballot per question).
+//
+//  No free text here — every option is a bounded choice key. This keeps the
+//  table privacy-safe even for anonymous visitors.
+// ---------------------------------------------------------------------------
+
+model SurveyResponse {
+  id           String   @id @default(cuid())
+  vertical     String   // "home-health" | "home-hospice" | future verticals
+  questionSlug String
+  optionKey    String
+  ballotHash   String   // HMAC(pepper, anonymous cookie uuid) — not PII
+  associateId  String?  // set only when a signed-in associate answers
+  createdAt    DateTime @default(now())
+
+  @@unique([vertical, questionSlug, ballotHash])
+  @@index([vertical, questionSlug])
+  @@map("survey_responses")
+}
