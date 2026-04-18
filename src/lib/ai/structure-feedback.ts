@@ -74,13 +74,7 @@ export async function structureFeedback(rawText: string): Promise<StructuredFeed
   const msg = await anthropic().messages.create({
     model: MODEL,
     max_tokens: 1024,
-    system: [
-      {
-        type: "text",
-        text: SYSTEM_PREAMBLE,
-        cache_control: { type: "ephemeral" },
-      },
-    ],
+    system: SYSTEM_PREAMBLE,
     messages: [
       {
         role: "user",

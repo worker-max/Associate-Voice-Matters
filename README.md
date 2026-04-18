@@ -23,13 +23,16 @@ Standalone associate voice and AI advocacy platform at [associatevoicematters.co
 ## Getting Started
 
 ```bash
-cp .env.example .env.local
-# fill in DATABASE_URL, NEXTAUTH_SECRET, IDENTITY_ENCRYPTION_KEY, etc.
 npm install
-npm run db:generate
-npm run db:push
-npm run dev
+cp .env.example .env.local
+npm run secrets >> .env.local         # appends the three required secrets
+# then edit .env.local and fill in DATABASE_URL + DIRECT_URL
+npm run db:push                       # create tables
+npm run db:seed                       # (optional) populate demo pulse data
+npm run dev                           # → http://localhost:3000
 ```
+
+See [DEPLOY.md](./DEPLOY.md) for the Vercel + Neon path.
 
 ## Independence from TalkAIQ
 

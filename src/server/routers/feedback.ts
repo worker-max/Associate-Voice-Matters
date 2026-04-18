@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
+import { Prisma } from "@prisma/client";
 import { router, protectedProcedure } from "../trpc";
 import { structureFeedback } from "@/lib/ai/structure-feedback";
 
@@ -48,7 +49,9 @@ export const feedbackRouter = router({
         data: {
           caseId: input.caseId,
           rawText: input.rawText,
-          structuredJson: structured as object | null,
+          structuredJson: structured
+            ? (structured as unknown as Prisma.InputJsonValue)
+            : Prisma.JsonNull,
           aiTags,
           confidence,
         },

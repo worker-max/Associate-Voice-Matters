@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Check, CheckCircle2, Loader2 } from "lucide-react";
+import type { inferRouterOutputs } from "@trpc/server";
 import { trpc } from "@/lib/trpc-client";
+import type { AppRouter } from "@/server/routers/_app";
 import type {
   SingleChoiceQuestion,
   NumericQuestion,
@@ -11,12 +13,9 @@ import type {
   FreeTextQuestion,
 } from "@/content/surveys/types";
 
-type AggregateQuestion = NonNullable<
-  ReturnType<typeof trpc.survey.aggregate.useQuery>["data"]
->["questions"][number];
-type MyAnswers = NonNullable<
-  ReturnType<typeof trpc.survey.myAnswers.useQuery>["data"]
->;
+type RouterOutputs = inferRouterOutputs<AppRouter>;
+type AggregateQuestion = RouterOutputs["survey"]["aggregate"]["questions"][number];
+type MyAnswers = RouterOutputs["survey"]["myAnswers"];
 
 // ---------- Single-choice (bars animate) ----------
 
