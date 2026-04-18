@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Lora, Plus_Jakarta_Sans } from "next/font/google";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/nav/Footer";
+import { TRPCProvider } from "@/components/providers/TRPCProvider";
+import { SessionProvider } from "@/components/providers/SessionProvider";
 import "./globals.css";
 
 const lora = Lora({
@@ -52,9 +54,13 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${lora.variable} ${jakarta.variable}`}>
       <body className="min-h-screen bg-ivory text-slate antialiased">
-        <Navbar />
-        <main>{children}</main>
-        <Footer />
+        <SessionProvider>
+          <TRPCProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+          </TRPCProvider>
+        </SessionProvider>
       </body>
     </html>
   );

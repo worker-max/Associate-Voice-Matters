@@ -4,6 +4,9 @@ import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { WingBadge } from "@/components/brand/WingBadge";
+import { FeedbackComposer } from "./FeedbackComposer";
+import { CasesList } from "./CasesList";
+import { MarketBenchmark } from "./MarketBenchmark";
 
 export const metadata = {
   title: "Dashboard",
@@ -18,13 +21,10 @@ export default async function DashboardPage() {
 
   const associate = await db.associate.findUnique({
     where: { userId: session.user.id },
-    include: {
-      cases: { orderBy: { updatedAt: "desc" }, take: 10 },
-    },
+    select: { id: true, industry: true, identityStatus: true },
   });
 
   if (!associate) {
-    // Rare — adapter created a User but the createUser event hasn't run.
     return (
       <section className="container-warm py-20">
         <h1>Setting up your profile…</h1>
@@ -35,7 +35,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <section className="container-warm py-16">
+      <section className="container-warm py-12">
         <span className="tag">Dashboard</span>
         <h1 className="mt-4">Welcome back.</h1>
         <p className="mt-3 max-w-xl text-slate/75">
@@ -44,55 +44,32 @@ export default async function DashboardPage() {
         </p>
       </section>
 
-      <section className="container-warm grid gap-6 pb-16 md:grid-cols-2">
-        <div className="card-warm">
-          <WingBadge wing="channel" size="sm" />
-          <h3 className="mt-4">Open a Channel case</h3>
-          <p className="mt-2 text-sm text-slate/70">
-            Share anonymous, AI-structured feedback with your employer.
-          </p>
-          <Link href="/channel/signup" className="btn-primary mt-5 w-fit">
-            Start a case
-          </Link>
-        </div>
+      <section className="container-warm grid gap-6 pb-8 lg:grid-cols-[1.3fr_1fr]">
+        <FeedbackComposer />
         <div className="card-warm bg-slate text-ivory">
           <WingBadge wing="envoy" size="sm" />
-          <h3 className="mt-4 text-ivory">Unlock Envoy</h3>
+          <h3 className="mt-4 text-ivory">Ready for Envoy?</h3>
           <p className="mt-2 text-sm text-ivory/75">
-            Ready to negotiate a raise or a new placement? AI advocates —
-            success-fee only.
+            When you want to negotiate a raise, retention bonus, or new
+            placement, unlock Envoy. Your identity gets verified, AI builds
+            the case on real market data, and you approve every message.
+            Success-fee only.
           </p>
           <Link href="/envoy" className="btn-envoy mt-5 w-fit">
-            Explore Envoy
+            Learn about Envoy
           </Link>
         </div>
       </section>
 
+      <section className="container-warm pb-8">
+        <MarketBenchmark />
+      </section>
+
       <section className="container-warm pb-20">
         <h2>Your cases</h2>
-        {associate.cases.length === 0 ? (
-          <p className="mt-4 text-slate/70">
-            No cases yet. When you open one, it appears here.
-          </p>
-        ) : (
-          <ul className="mt-6 divide-y divide-ivory-card rounded-bubble border border-ivory-card bg-ivory">
-            {associate.cases.map((c) => (
-              <li key={c.id} className="flex items-center justify-between px-5 py-4">
-                <div>
-                  <div className="text-xs uppercase tracking-[0.2em] text-sage">
-                    {c.wing} · {c.status}
-                  </div>
-                  <div className="mt-1 font-medium">
-                    {c.anonymousFlag ? "Anonymous" : "Identity unlocked"}
-                  </div>
-                </div>
-                <div className="text-xs text-slate/60">
-                  Updated {c.updatedAt.toLocaleDateString()}
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
+        <div className="mt-6">
+          <CasesList />
+        </div>
       </section>
     </>
   );

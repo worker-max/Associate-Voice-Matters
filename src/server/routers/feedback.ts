@@ -1,10 +1,13 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../trpc";
+import { structureFeedback } from "@/lib/ai/structure-feedback";
 
 /**
- * Feedback intake. Phase 1: stores raw text. Phase 2 wires the Claude API
- * call that structures raw → {structuredJson, aiTags, confidence}.
+ * Feedback intake. Stores raw text, then calls the neutral-moderator AI to
+ * produce an employer-ready structured record. If AI structuring fails for
+ * any reason — missing key, upstream error, bad JSON — we still persist the
+ * raw submission so the associate never loses their words.
  */
 export const feedbackRouter = router({
   submit: protectedProcedure
@@ -23,18 +26,43 @@ export const feedbackRouter = router({
 
       const caseRecord = await ctx.db.case.findUnique({
         where: { id: input.caseId },
-        select: { associateId: true },
+        select: { associateId: true, status: true },
       });
       if (!caseRecord || caseRecord.associateId !== associate.id) {
         throw new TRPCError({ code: "FORBIDDEN" });
       }
 
-      return ctx.db.feedback.create({
+      let structured: Awaited<ReturnType<typeof structureFeedback>> | null = null;
+      let aiTags: string[] = [];
+      let confidence: number | null = null;
+
+      try {
+        structured = await structureFeedback(input.rawText);
+        aiTags = structured.tags;
+        confidence = structured.confidence;
+      } catch (err) {
+        console.error("[feedback.submit] structuring failed", err);
+      }
+
+      const feedback = await ctx.db.feedback.create({
         data: {
           caseId: input.caseId,
           rawText: input.rawText,
+          structuredJson: structured as object | null,
+          aiTags,
+          confidence,
         },
       });
+
+      // First submission on an OPEN case moves it to AWAITING_EMPLOYER.
+      if (caseRecord.status === "OPEN") {
+        await ctx.db.case.update({
+          where: { id: input.caseId },
+          data: { status: "AWAITING_EMPLOYER" },
+        });
+      }
+
+      return { feedback, structured };
     }),
 
   listForCase: protectedProcedure
