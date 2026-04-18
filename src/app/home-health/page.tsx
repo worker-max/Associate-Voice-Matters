@@ -2,7 +2,9 @@ import Link from "next/link";
 import { HeartPulse, MapPin, ShieldCheck } from "lucide-react";
 import { VerticalHero } from "@/components/verticals/VerticalHero";
 import { SurveyBlock } from "@/components/survey/SurveyBlock";
+import { ProfileBar } from "@/components/survey/ProfileBar";
 import { homeHealthSurvey } from "@/content/surveys/home-health";
+import { HOME_HEALTH_AGENCIES } from "@/content/agencies/home-health";
 
 export const metadata = {
   title: "Home Health — AssociateVoiceMatters",
@@ -23,6 +25,8 @@ export default function HomeHealthPage() {
           { label: "Envoy", value: "Only if we win" },
         ]}
       />
+
+      <ProfileBar vertical="home-health" agencies={HOME_HEALTH_AGENCIES} />
 
       <section className="container-warm py-10">
         <div className="grid gap-6 md:grid-cols-3">

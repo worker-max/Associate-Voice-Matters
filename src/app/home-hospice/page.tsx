@@ -2,7 +2,9 @@ import Link from "next/link";
 import { Heart, HeartHandshake, ShieldCheck } from "lucide-react";
 import { VerticalHero } from "@/components/verticals/VerticalHero";
 import { SurveyBlock } from "@/components/survey/SurveyBlock";
+import { ProfileBar } from "@/components/survey/ProfileBar";
 import { homeHospiceSurvey } from "@/content/surveys/home-hospice";
+import { HOME_HOSPICE_AGENCIES } from "@/content/agencies/home-hospice";
 
 export const metadata = {
   title: "Home Hospice — AssociateVoiceMatters",
@@ -23,6 +25,8 @@ export default function HomeHospicePage() {
           { label: "Envoy", value: "Only if we win" },
         ]}
       />
+
+      <ProfileBar vertical="home-hospice" agencies={HOME_HOSPICE_AGENCIES} />
 
       <section className="container-warm py-10">
         <div className="grid gap-6 md:grid-cols-3">

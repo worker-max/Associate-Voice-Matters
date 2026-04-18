@@ -391,23 +391,87 @@ model Recruiter {
 //  SurveyResponse — vertical-targeted pulse surveys on landing pages.
 //
 //  Questions live in /src/content/surveys/* (editable code, no migration
-//  needed). This table stores only the selections + a ballot hash for
-//  lightweight dedup (one response per ballot per question).
+//  needed). This table stores selections + numeric/text values + grid rows.
+//  Dedup is (vertical, questionSlug, gridKey, ballotHash) — gridKey is null
+//  for non-grid questions.
 //
-//  No free text here — every option is a bounded choice key. This keeps the
-//  table privacy-safe even for anonymous visitors.
+//  The optionKey column is used by single_choice questions; numericValue by
+//  numeric questions; textValue by free_text questions. Exactly one is
+//  populated per row.
 // ---------------------------------------------------------------------------
 
 model SurveyResponse {
   id           String   @id @default(cuid())
   vertical     String   // "home-health" | "home-hospice" | future verticals
   questionSlug String
-  optionKey    String
+  // For grid_numeric this is the row key; for all other question types it's
+  // the empty string. Kept non-null so the composite unique constraint
+  // actually dedupes on Postgres (NULLs would be treated as distinct).
+  gridKey      String   @default("")
+  optionKey    String?  // for single_choice
+  numericValue Decimal? @db.Decimal(14, 4) // for numeric + grid_numeric
+  textValue    String?  @db.Text // reserved; free_text lives in FreeTextFeedback
   ballotHash   String   // HMAC(pepper, anonymous cookie uuid) — not PII
   associateId  String?  // set only when a signed-in associate answers
   createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  @@unique([vertical, questionSlug, ballotHash])
+  @@unique([vertical, questionSlug, gridKey, ballotHash])
   @@index([vertical, questionSlug])
   @@map("survey_responses")
+}
+
+// ---------------------------------------------------------------------------
+//  BallotProfile — self-assigned identity for a ballot within a vertical.
+//
+//  Username is generated deterministically from ballotHash so it survives
+//  re-visits. Discipline + agency are self-reported and optional at first
+//  interaction. One profile per (ballotHash, vertical).
+// ---------------------------------------------------------------------------
+
+model BallotProfile {
+  id           String   @id @default(cuid())
+  ballotHash   String
+  vertical     String
+  username     String
+  discipline   String?  // RN | LPN | PT | ... | OTHER
+  agencyKey    String?  // slug from the alphabetized agency registry
+  agencyWritein String? // free-text when "other" is chosen
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([ballotHash, vertical])
+  @@index([vertical, discipline])
+  @@index([vertical, agencyKey])
+  @@map("ballot_profiles")
+}
+
+// ---------------------------------------------------------------------------
+//  FreeTextFeedback — long-form input on the vertical landing pages.
+//
+//  Two kinds:
+//    • "general"        — "anything the clinician wants to share"
+//    • "question-suggestion" — recommended future survey questions
+//
+//  No PII guardrail here (the text is free-form), so AI moderation /
+//  PII-scrub should run before this gets surfaced on employer-facing views.
+//  For Phase 1 this is append-only and associate-scoped for the author only.
+// ---------------------------------------------------------------------------
+
+model FreeTextFeedback {
+  id          String   @id @default(cuid())
+  vertical    String
+  kind        String   // "general" | "question-suggestion"
+  text        String   @db.Text
+  agencyKey   String?
+  agencyWritein String?
+  discipline  String?
+  username    String?  // snapshot of BallotProfile.username at write time
+  ballotHash  String
+  associateId String?
+  createdAt   DateTime @default(now())
+
+  @@index([vertical, kind, createdAt])
+  @@index([ballotHash])
+  @@map("free_text_feedback")
 }
