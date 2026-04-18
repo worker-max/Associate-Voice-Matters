@@ -17,13 +17,13 @@ type Vertical = {
 };
 
 const verticals: Vertical[] = [
-  { name: "Home Health", status: "Live · Pulse survey open", href: "/home-health" },
+  { name: "Home Health", status: "Live · Skilled / Medicare-certified", href: "/home-health" },
   { name: "Home Hospice", status: "Live · Pulse survey open", href: "/home-hospice" },
+  { name: "Home Care", status: "Coming soon · Non-skilled / private duty" },
   { name: "Acute Care Nursing", status: "Coming soon" },
   { name: "Allied Health", status: "Coming soon" },
   { name: "Hospitality", status: "Coming soon" },
   { name: "Retail", status: "Coming soon" },
-  { name: "Home Services", status: "Coming soon" },
   { name: "Education", status: "Coming soon" },
 ];
 

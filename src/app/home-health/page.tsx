@@ -16,9 +16,9 @@ export default function HomeHealthPage() {
   return (
     <>
       <VerticalHero
-        eyebrow="Home Health · Live"
+        eyebrow="Home Health · Skilled, Medicare-certified"
         headline="Home health runs on miles and moments. Your voice should carry."
-        subhead="Share an anonymous case through Channel. When you're ready to negotiate pay, mileage, caseload, or placement, unlock Envoy — success-fee only, never out-of-pocket."
+        subhead="For skilled clinicians — RN, LPN, PT, PTA, OT, COTA, SLP, MSW, HHA — under Medicare-certified home health. (Non-skilled personal care lives on its own page, coming soon.) Share anonymously on Channel. Unlock Envoy when you're ready — success-fee only, never out-of-pocket."
         stats={[
           { label: "Entry cost", value: "Email only" },
           { label: "Channel", value: "Free forever" },
