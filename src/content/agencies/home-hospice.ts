@@ -38,7 +38,6 @@ const NAMES: string[] = [
   "Hospice of North Idaho",
   "Hospice of the Valley",
   "Hospice of the Western Reserve",
-  "Kindred Hospice",
   "Nathan Adelson Hospice",
   "New Day Hospice",
   "Ohio's Hospice",
